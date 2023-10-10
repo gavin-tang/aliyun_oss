@@ -1,0 +1,69 @@
+//@version=5
+indicator("ahr999指数修改版", shorttitle="ahr999指数修改版", overlay=false)
+
+
+coin_age = (math.round(time_close/1000) - 1230912000)/(60*60*24)
+coin_price = math.pow(10,5.8*math.log10(coin_age)-16.88)
+// plot(coin_price, linewidth=3, color=color.red)
+
+//200天定投成本,还是要用几何平均
+price = input(title ="Source", defval=close)
+per = input(title="Length",defval=200)
+lmean = math.log(price)
+smean = math.sum(lmean,per)
+gma = math.exp(smean/per)
+// plot(gma,title="GMA",linewidth=5, color=color.green)
+
+// 指数
+index = (close/coin_price)*(close/gma)
+ahr99x = (coin_price/close) * (gma/close) * 3
+plot(index,title="ahr999",linewidth=1, color=color.green)
+plot(ahr99x,title="ahr999x",linewidth=1, color=color.red)
+y = 0.45
+// 定投区间绘制
+h1 = hline(y,title='抄底区间',linewidth=1)
+h2 = hline(1.2,title='定投区间',linewidth=1)
+fill(h1, h2,color=color.new(color.red, 90),title='填充颜色')
+
+dt = time - time[1]
+if barstate.islast
+    label1 = label.new(time + 200*dt,1,text='定投基准线:1.2', xloc=xloc.bar_time)
+    label2 = label.new(time + 200*dt,0.45,text='梭哈基准线:0.45', xloc=xloc.bar_time)
+    label4 = label.new(time + 100*dt,0.7,text='定投区间', xloc=xloc.bar_time)
+    label5 = label.new(time + 100*dt,3.0,text='囤住区间', xloc=xloc.bar_time)
+    label6 = label.new(time + 100*dt,-1,text='梭哈区间', xloc=xloc.bar_time)
+
+    label.set_style(label1, label.style_label_down)
+    label.set_style(label2, label.style_label_up)
+    label.set_style(label4, label.style_none)
+    label.set_textcolor(label4, color.red)
+    label.set_style(label5, label.style_none)
+    label.set_textcolor(label5, color.red)
+    label.set_style(label6, label.style_none)
+    label.set_textcolor(label6, color.red)
+    
+    label.set_color(label1, color.black)
+    label.set_textcolor(label1, color.lime)
+    
+    label.set_color(label2, color.black)
+    label.set_textcolor(label2, color.lime)
+
+
+    //if 0.45<index and index<=1.2
+    //    label3 = label.new(time,index+0.05,text= tostring(index) + '\n 适合定投',xloc=xloc.bar_time)
+    //    label.set_color(label3, color.green)
+    //    label.set_textcolor(label3, color.white)
+        
+    //if  index<=0.45
+    //    label3 = label.new(time,index+0.05,text= tostring(index) + '\n 适合梭哈',xloc=xloc.bar_time)
+    //    label.set_color(label3, color.red)
+    //    label.set_textcolor(label3, color.white)
+    
+    //if index>1.2
+    //    label3 = label.new(time,index+0.05,text= tostring(index) + '\n 适合囤住',xloc=xloc.bar_time)
+    //    label.set_color(label3, color.orange)
+    //    label.set_textcolor(label3, color.white)
+        
+// 增加区间绘图
+    if index < 0.45
+        index

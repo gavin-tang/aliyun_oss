@@ -47,6 +47,7 @@ class OSSClient {
     required OSSObject object,
     String? bucket,
     String? endpoint,
+    void Function(double)? onProgress,
     String? path,
   }) async {
     _signer = await verify();
@@ -67,22 +68,22 @@ class OSSClient {
       // if (object is OSSImageObject && !object.fullImage) {
       //   bytes = MediaAssetUtils.compressImage(file);
       // }
-      await _http.put<void>(
-        url,
-        data: Stream.fromIterable(bytes.map((e) => [e])),
-        options: Options(
-          headers: <String, dynamic>{
-            ...safeHeaders,
-            ...<String, dynamic>{
-              'content-length': object.length,
-            }
-          },
-          contentType: object._mediaType.mimeType,
-        ),
-        // onSendProgress: (int count, int total) {
-        //   print(((count/total)*100).toStringAsFixed(2));
-        // }
-      );
+      await _http.put<void>(url,
+          data: Stream.fromIterable(bytes.map((e) => [e])),
+          options: Options(
+            headers: <String, dynamic>{
+              ...safeHeaders,
+              ...<String, dynamic>{
+                'content-length': object.length,
+              }
+            },
+            contentType: object._mediaType.mimeType,
+          ), onSendProgress: (int count, int total) {
+        double progress = min(max(((count / max(total, 1)) * 100), 0), 1);
+        if (onProgress != null) {
+          onProgress(progress);
+        }
+      });
       return object..uploadSuccessful(url);
     } catch (e) {
       rethrow;
