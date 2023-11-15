@@ -55,6 +55,9 @@ abstract class OSSObject {
 
   String url = '';
 
+  /// 是否上传完成
+  bool finished = false;
+
   int get length => bytes.lengthInBytes;
 
   String get type => _mediaType == MediaType('application', 'octet-stream')
