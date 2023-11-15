@@ -199,7 +199,9 @@ class OSSVideoObject extends OSSObject {
   }) {
     String subtype = path.extension(file.path).toLowerCase();
     subtype = subtype.isNotEmpty ? subtype.replaceFirst('.', '') : '*';
-
+    if (subtype == 'mov') {
+      subtype = 'mp4';
+    }
     return OSSVideoObject._(
       bytes: file.readAsBytesSync(),
       mediaType: MediaType('video', subtype),
