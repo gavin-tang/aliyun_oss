@@ -79,7 +79,7 @@ class OSSClient {
             },
             contentType: object._mediaType.mimeType,
           ), onSendProgress: (int count, int total) {
-        double progress = min(max(((count / max(total, 1)) * 100), 0), 1);
+        double progress = min(max((count / max(total, 1)), 0), 1);
         if (!object.finished) {
           if (progress >= 1) {
             object.finished = true;
